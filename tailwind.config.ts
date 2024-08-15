@@ -19,7 +19,7 @@ export default {
   plugins: [require('daisyui')],
 
   daisyui: {
-    themes: ["emerald"]
+    themes: ["valentine"]
   },
 
 } satisfies Config;
