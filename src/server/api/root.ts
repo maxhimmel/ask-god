@@ -1,3 +1,4 @@
+import { aiRouter } from "~/server/api/routers/ai";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -6,6 +7,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  ai: aiRouter,
 });
 
 // export type definition of API
