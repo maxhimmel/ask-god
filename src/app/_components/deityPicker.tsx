@@ -1,4 +1,4 @@
-const deities = ["Jesus", "Buddha", "Krishna", "Allah"];
+import { api } from "~/trpc/react";
 
 export interface Props {
   inputName?: string;
@@ -6,6 +6,8 @@ export interface Props {
 }
 
 export function DeityPicker({ inputName = "deity", onChange }: Props) {
+  const deities = api.ai.getDeities.useQuery().data;
+
   return (
     <select
       name={inputName}
@@ -18,9 +20,9 @@ export function DeityPicker({ inputName = "deity", onChange }: Props) {
         Pick a deity:
       </option>
 
-      {deities.map((deity) => (
-        <option key={deity} value={deity}>
-          {deity}
+      {deities?.map((deity) => (
+        <option key={deity.id} value={deity.id}>
+          {deity.name}
         </option>
       ))}
     </select>
