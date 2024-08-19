@@ -2,24 +2,21 @@
 
 import { api } from "~/trpc/react";
 import { useState } from "react";
-
-const deities = ["Jesus", "Buddha", "Krishna", "Allah"];
+import { DeityPicker } from "~/app/_components/deityPicker";
+import { ChatHistory } from "~/app/_components/chatHistory";
 
 export function AskGod() {
   const [answer, setAnswer] = useState<string | undefined>(undefined);
 
-  const createAnswer = api.ai.ask.useMutation();
+  const createAnswer = api.ai.getAnswer.useMutation();
 
   return (
     <div>
       <form
         className="flex flex-col gap-2"
-        onSubmit={async (form) => {
-          form.preventDefault();
-
-          const formData = new FormData(form.target as HTMLFormElement);
-          const deity = formData.get("deity") as string;
-          const question = formData.get("question") as string;
+        action={async (form) => {
+          const deity = form.get("deity") as string;
+          const question = form.get("question") as string;
 
           const response = await createAnswer.mutateAsync({
             hp: deity,
@@ -29,22 +26,7 @@ export function AskGod() {
           setAnswer(response.answer);
         }}
       >
-        <select
-          name="deity"
-          defaultValue={""}
-          className="select select-bordered"
-          required
-        >
-          <option disabled value={""}>
-            Pick a deity:
-          </option>
-
-          {deities.map((deity) => (
-            <option key={deity} value={deity}>
-              {deity}
-            </option>
-          ))}
-        </select>
+        <DeityPicker />
 
         <textarea
           name="question"
@@ -58,7 +40,7 @@ export function AskGod() {
         </button>
       </form>
 
-      <div className="">{answer}</div>
+      <ChatHistory>{answer}</ChatHistory>
     </div>
   );
 }
