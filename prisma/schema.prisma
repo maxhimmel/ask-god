@@ -14,6 +14,13 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+model Deity {
+    id          String   @id @default(cuid())
+    name        String
+    description String
+    image       String
+}
+
 // Necessary for Next auth
 model Account {
     id                       String  @id @default(cuid())
