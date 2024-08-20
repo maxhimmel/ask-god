@@ -15,10 +15,29 @@ datasource db {
 }
 
 model Deity {
-    id          String   @id @default(cuid())
+    id          String @id @default(cuid())
     name        String
     description String
     image       String
+}
+
+model Message {
+    id         String   @id @default(cuid())
+    content    String   @db.Text
+    createdAt  DateTime @default(now())
+    batchId    String
+    senderName String
+    senderId   String
+    isDeity    Boolean
+    chatRoomId String
+    chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+}
+
+model ChatRoom {
+    id        String    @id @default(cuid())
+    userId    String
+    messages  Message[]
+    createdAt DateTime  @default(now())
 }
 
 // Necessary for Next auth

@@ -1,4 +1,5 @@
 import { aiRouter } from "~/server/api/routers/ai";
+import { chatRouter } from "~/server/api/routers/chat";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -8,6 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   ai: aiRouter,
+  chat: chatRouter
 });
 
 // export type definition of API
