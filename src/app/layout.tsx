@@ -18,19 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
-        <TRPCReactProvider>
-          <div className="bg-primary p-2">
-            <div className="menu menu-horizontal menu-md rounded-full border-4 border-neutral bg-base-100 text-base-content">
-              <li>
-                <Link href="/">Ask</Link>
-              </li>
-              <li>
-                <Link href="/chat">Chat</Link>
-              </li>
-            </div>
-          </div>
-          {children}
-        </TRPCReactProvider>
+        <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>
   );
