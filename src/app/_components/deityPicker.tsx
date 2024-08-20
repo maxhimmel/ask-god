@@ -1,18 +1,29 @@
+"use client";
+
 import { api } from "~/trpc/react";
 
 export interface Props {
+  className?: string;
   inputName?: string;
   onChange?: (deity: string) => void;
 }
 
-export function DeityPicker({ inputName = "deity", onChange }: Props) {
+export function DeityPicker({
+  className,
+  inputName = "deity",
+  onChange,
+}: Props) {
   const deities = api.ai.getDeities.useQuery().data;
+
+  if (deities) {
+    deities.sort((a, b) => sortAlphabetically(a.name, b.name));
+  }
 
   return (
     <select
       name={inputName}
       defaultValue=""
-      className="select select-bordered"
+      className={`select select-bordered ${className}`}
       required
       onChange={(e) => onChange?.(e.target.value)}
     >
@@ -27,4 +38,11 @@ export function DeityPicker({ inputName = "deity", onChange }: Props) {
       ))}
     </select>
   );
+}
+
+function sortAlphabetically(a: string, b: string) {
+  // sort names alphabetically but ignore "the" at the beginning
+  const nameA = a.replace(/^the /i, "");
+  const nameB = b.replace(/^the /i, "");
+  return nameA.localeCompare(nameB);
 }
