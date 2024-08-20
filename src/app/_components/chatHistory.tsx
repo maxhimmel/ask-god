@@ -1,11 +1,24 @@
+"use client";
+
+import { api } from "~/trpc/react";
+
 export interface Props {
+  className?: string;
   children: React.ReactNode;
 }
 
-export function ChatHistory({ children }: Props) {
+export function ChatHistory({ children, className }: Props) {
+  api.ai.onMessageAdded.useSubscription(undefined, {
+    onData: (tracked) => {
+      console.log(tracked);
+    },
+  });
+
   return (
-    <div className="my-8 flex h-96 w-4/5 overflow-y-auto rounded-md border-2 border-base-200 p-4">
-      <pre className="text-wrap font-sans">{children}</pre>
+    <div
+      className={`h-[calc(100vh*0.75)] w-full overflow-y-auto rounded-md border-2 border-base-200 p-4 ${className}`}
+    >
+      {children}
     </div>
   );
 }
