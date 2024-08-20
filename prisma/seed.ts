@@ -1,10 +1,13 @@
 import { db } from "../src/server/db";
 
+let deityId = 1;
 const deities = [
-    { id: "1", name: "Jesus", description: "Christianity", image: "" },
-    { id: "2", name: "Buddha", description: "Buddhism", image: "" },
-    { id: "3", name: "Krishna", description: "Hinduism", image: "" },
-    { id: "4", name: "Allah", description: "Islam", image: "" },
+    { id: `${deityId++}`, name: "Jesus", description: "Christianity", image: "" },
+    { id: `${deityId++}`, name: "Buddha", description: "Buddhism", image: "" },
+    { id: `${deityId++}`, name: "Krishna", description: "Hinduism", image: "" },
+    { id: `${deityId++}`, name: "Allah", description: "Islam", image: "" },
+    { id: `${deityId++}`, name: "The Tao", description: "Taoism", image: "" },
+    { id: `${deityId++}`, name: "Alchoholics Anonymous", description: "12 Step Program", image: "" },
 ];
 
 async function main() {
