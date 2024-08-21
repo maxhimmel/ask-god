@@ -2,7 +2,6 @@
 
 import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import {
-  httpBatchLink,
   loggerLink,
   splitLink,
   unstable_httpBatchStreamLink,

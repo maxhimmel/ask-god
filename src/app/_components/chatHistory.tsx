@@ -1,6 +1,6 @@
 "use client";
 
-import { Message } from "@prisma/client";
+import type { Message } from "@prisma/client";
 import { useState } from "react";
 import { api } from "~/trpc/react";
 
@@ -19,7 +19,7 @@ export function ChatHistory({ lastMessageId, className }: Props) {
         let newData = data;
 
         if (messages.has(data.batchId)) {
-          const existing = messages.get(data.batchId) as Message;
+          const existing = messages.get(data.batchId)!;
           newData = { ...existing };
           newData.content += data.content;
           newData.createdAt = data.createdAt;

@@ -1,5 +1,5 @@
 import { google } from "@ai-sdk/google";
-import { Message } from "@prisma/client";
+import type { Message } from "@prisma/client";
 import { tracked } from "@trpc/server";
 import { streamText } from "ai";
 import { randomUUID } from "crypto";
@@ -28,7 +28,7 @@ export const aiRouter = createTRPCRouter({
                 data: {
                     batchId: randomUUID(),
                     content: input.question,
-                    senderName: ctx.session.user.name as string,
+                    senderName: ctx.session.user.name!,
                     senderId: userId,
                     isDeity: false,
                     chatRoomId: chatRoom.id,
