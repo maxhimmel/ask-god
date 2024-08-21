@@ -36,7 +36,7 @@ export function ChatHistory({ lastMessageId, className }: Props) {
 
   return (
     <div
-      className={`flex h-[calc(100vh*0.75)] w-full flex-col-reverse overflow-y-auto rounded-md border-4 border-base-200 p-4 ${className}`}
+      className={`flex h-[calc(100vh*0.75)] w-full flex-col-reverse overflow-y-auto rounded-md border-2 border-base-200 p-4 ${className}`}
     >
       {Array.from(messages.values())
         .reverse()
