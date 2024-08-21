@@ -1,24 +1,63 @@
 "use client";
 
+import { Message } from "@prisma/client";
+import { useState } from "react";
 import { api } from "~/trpc/react";
 
 export interface Props {
+  lastMessageId?: string | null;
   className?: string;
-  children: React.ReactNode;
 }
 
-export function ChatHistory({ children, className }: Props) {
-  api.ai.onMessageAdded.useSubscription(undefined, {
-    onData: (tracked) => {
-      console.log(tracked);
+export function ChatHistory({ lastMessageId, className }: Props) {
+  const [messages, setMessages] = useState<Map<string, Message>>(new Map());
+
+  api.ai.onMessageAdded.useSubscription(
+    { lastEventId: lastMessageId },
+    {
+      onData: ({ data }) => {
+        let newData = data;
+
+        if (messages.has(data.batchId)) {
+          const existing = messages.get(data.batchId) as Message;
+          newData = { ...existing };
+          newData.content += data.content;
+          newData.createdAt = data.createdAt;
+        }
+
+        setMessages((prev) => {
+          const updated = new Map(prev);
+          updated.set(data.batchId, newData);
+          return updated;
+        });
+      },
     },
-  });
+  );
 
   return (
     <div
-      className={`h-[calc(100vh*0.75)] w-full overflow-y-auto rounded-md border-2 border-base-200 p-4 ${className}`}
+      className={`flex h-[calc(100vh*0.75)] w-full flex-col-reverse overflow-y-auto rounded-md border-2 border-base-200 p-4 ${className}`}
     >
-      {children}
+      {Array.from(messages.values())
+        .reverse()
+        .map((message) => (
+          <MessageComponent key={message.batchId} message={message} />
+        ))}
+    </div>
+  );
+}
+
+function MessageComponent({ message }: { message: Message }) {
+  return (
+    <div
+      className={`flex [&:not(:first-child)]:mb-4 ${
+        message.isDeity ? "justify-start" : "justify-end"
+      }`}
+    >
+      <pre className="text-wrap font-sans">
+        <strong className="text-lg">{message.senderName}:</strong>{" "}
+        {message.content}
+      </pre>
     </div>
   );
 }
