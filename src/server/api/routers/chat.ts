@@ -38,10 +38,17 @@ export const chatRouter = createTRPCRouter({
         .query(async ({ ctx }) => {
             const userId = ctx.session.user.id;
 
-            const chatRoom = await ctx.db.chatRoom.findFirstOrThrow({
+            let chatRoom = await ctx.db.chatRoom.findFirst({
                 where: { userId },
                 include: { messages: { orderBy: { createdAt: "desc" }, take: 1 } }
             });
+
+            if (!chatRoom) {
+                chatRoom = await ctx.db.chatRoom.create({
+                    data: { userId },
+                    include: { messages: true }
+                });
+            }
 
             return chatRoom.messages[0]?.id ?? null;
         })
