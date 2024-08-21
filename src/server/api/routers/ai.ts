@@ -65,7 +65,7 @@ export const aiRouter = createTRPCRouter({
             lastEventId: z.string().nullish()
         }).optional())
         .subscription(async function* (opts) {
-            if (opts.input && opts.input.lastEventId) {
+            if (opts.input?.lastEventId) {
                 const lastMessage = await opts.ctx.db.message.findFirst({
                     where: { id: opts.input.lastEventId }
                 });
