@@ -48,7 +48,6 @@ export const aiRouter = createTRPCRouter({
             for await (const delta of textStream) {
                 const deityMessage = await ctx.db.message.create({
                     data: {
-                        // TODO: Add an ID to connect these packets being sent
                         batchId,
                         content: delta,
                         senderName: deity.name,
@@ -67,8 +66,21 @@ export const aiRouter = createTRPCRouter({
         }).optional())
         .subscription(async function* (opts) {
             if (opts.input && opts.input.lastEventId) {
-                // TODO: Get messages since the last event ID and yield them ...
-                console.log("lastEventId", opts.input.lastEventId);
+                const lastMessage = await opts.ctx.db.message.findFirst({
+                    where: { id: opts.input.lastEventId }
+                });
+
+                if (!lastMessage) {
+                    return;
+                }
+
+                const messages = await opts.ctx.db.message.findMany({
+                    where: { chatRoomId: lastMessage.chatRoomId, createdAt: { lte: lastMessage.createdAt } }
+                });
+
+                for (const message of messages) {
+                    yield tracked(message.id, message);
+                }
             }
 
             for await (const [data] of on(eventEmitter, "message")) {

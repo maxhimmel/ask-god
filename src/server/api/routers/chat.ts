@@ -33,4 +33,16 @@ export const chatRouter = createTRPCRouter({
                 where: { chatRoomId: chatRoom.id }
             });
         }),
+
+    getLastMessageId: protectedProcedure
+        .query(async ({ ctx }) => {
+            const userId = ctx.session.user.id;
+
+            const chatRoom = await ctx.db.chatRoom.findFirstOrThrow({
+                where: { userId },
+                include: { messages: { orderBy: { createdAt: "desc" }, take: 1 } }
+            });
+
+            return chatRoom.messages[0]?.id ?? null;
+        })
 });
