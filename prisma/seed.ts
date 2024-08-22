@@ -8,6 +8,7 @@ const deities = [
     { id: `${deityId++}`, name: "Allah", description: "Islam", image: "" },
     { id: `${deityId++}`, name: "The Tao", description: "Taoism", image: "" },
     { id: `${deityId++}`, name: "Alchoholics Anonymous", description: "12 Step Program", image: "" },
+    { id: `${deityId++}`, name: "Yahweh", description: "Judaism", image: "" },
 ];
 
 async function main() {
