@@ -4,6 +4,7 @@ import { DeityPicker } from "~/app/_components/deityPicker";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Chat() {
+  void api.ai.getDeities.prefetch();
   const lastMessageId = await api.chat.getLastMessageId();
 
   return (

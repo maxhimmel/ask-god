@@ -13,7 +13,7 @@ export function DeityPicker({
   inputName = "deity",
   onChange,
 }: Props) {
-  const deities = api.ai.getDeities.useQuery().data;
+  const [deities] = api.ai.getDeities.useSuspenseQuery();
 
   if (deities) {
     deities.sort((a, b) => sortAlphabetically(a.name, b.name));
