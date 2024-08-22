@@ -50,14 +50,14 @@ export function ChatHistory({ lastMessageId, className }: Props) {
 function MessageComponent({ message }: { message: Message }) {
   return (
     <div
-      className={`flex [&:not(:first-child)]:mb-4 ${
-        message.isDeity ? "justify-start" : "justify-end"
+      className={`flex w-4/5 flex-col [&:not(:first-child)]:mb-4 ${
+        message.isDeity
+          ? "mr-auto justify-start text-start"
+          : "ml-auto justify-end text-end"
       }`}
     >
-      <pre className="text-wrap font-sans">
-        <strong className="text-lg">{message.senderName}:</strong>{" "}
-        {message.content}
-      </pre>
+      <p className="text-lg font-thin">{message.senderName}</p>
+      <pre className="text-wrap font-sans">{message.content}</pre>
     </div>
   );
 }
