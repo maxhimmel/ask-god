@@ -16,19 +16,19 @@ export function ChatHistory({ lastMessageId, className }: Props) {
     { lastEventId: lastMessageId },
     {
       onData: ({ data }) => {
-        let newData = data;
-
-        if (messages.has(data.batchId)) {
-          const existing = messages.get(data.batchId)!;
-          newData = { ...existing };
-          newData.content += data.content;
-          newData.createdAt = data.createdAt;
-        }
-
         setMessages((prev) => {
-          const updated = new Map(prev);
-          updated.set(data.batchId, newData);
-          return updated;
+          let newData = data;
+          const updatedMessages = new Map(prev);
+
+          if (updatedMessages.has(newData.batchId)) {
+            const existing = updatedMessages.get(newData.batchId)!;
+            newData = { ...existing };
+            newData.content += data.content;
+            newData.createdAt = data.createdAt;
+          }
+
+          updatedMessages.set(newData.batchId, newData);
+          return updatedMessages;
         });
       },
     },
@@ -36,7 +36,7 @@ export function ChatHistory({ lastMessageId, className }: Props) {
 
   return (
     <div
-      className={`flex h-[calc(100vh*0.75)] w-full flex-col-reverse overflow-y-auto rounded-md border-2 border-base-200 p-4 ${className}`}
+      className={`input input-bordered flex h-[calc(100vh*0.75)] w-full flex-col-reverse overflow-y-auto rounded-md p-4 ${className}`}
     >
       {Array.from(messages.values())
         .reverse()
