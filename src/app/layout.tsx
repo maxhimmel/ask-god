@@ -8,7 +8,7 @@ import { Navbar } from "~/app/_components/navbar";
 
 export const metadata: Metadata = {
   title: "Ask God",
-  description: "Ask God anything",
+  description: "Start a conversion with your concept of God",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

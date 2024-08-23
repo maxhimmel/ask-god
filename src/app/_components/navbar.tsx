@@ -6,7 +6,7 @@ export async function Navbar() {
     <div className="navbar border-b-4 border-neutral bg-primary text-primary-content">
       <div className="w-full justify-between px-4">
         <div className="flex">
-          <Link href="/" className="text-2xl font-bold">
+          <Link href="/" className="btn btn-ghost text-2xl font-bold">
             Ask God
           </Link>
         </div>

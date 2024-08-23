@@ -32,7 +32,7 @@ export default async function Chat() {
               placeholder="Ask a question..."
             />
             <button type="submit" className="btn btn-primary join-item">
-              Ask
+              Send
             </button>
           </form>
 

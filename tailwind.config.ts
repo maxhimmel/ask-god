@@ -19,7 +19,7 @@ export default {
   plugins: [require('daisyui')],
 
   daisyui: {
-    themes: ["valentine"]
+    themes: ["nord"]
   },
 
 } satisfies Config;
