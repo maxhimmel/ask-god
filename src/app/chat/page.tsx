@@ -14,7 +14,7 @@ export default async function Chat() {
           <ChatHistory className="mx-auto" lastMessageId={lastMessageId} />
 
           <form
-            className="join flex w-full flex-row"
+            className="join join-vertical flex w-full sm:join-horizontal"
             action={async (formData) => {
               "use server";
 
@@ -28,7 +28,7 @@ export default async function Chat() {
             <input
               name="question"
               type="text"
-              className="input join-item input-bordered flex w-full flex-1 flex-grow"
+              className="input join-item input-bordered flex w-full"
               placeholder="Ask a question..."
             />
             <button type="submit" className="btn btn-primary join-item">
