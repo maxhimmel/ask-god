@@ -5,13 +5,13 @@ import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Chat() {
   void api.ai.getDeities.prefetch();
-  const lastMessageId = await api.chat.getLastMessageId();
+  void api.chat.getLastMessageId.prefetch();
 
   return (
     <HydrateClient>
       <main className="hero">
         <div className="hero-content flex w-screen flex-col">
-          <ChatHistory className="mx-auto" lastMessageId={lastMessageId} />
+          <ChatHistory className="mx-auto" />
 
           <form
             className="join join-vertical flex w-full sm:join-horizontal"
@@ -21,6 +21,7 @@ export default async function Chat() {
               const deityId = formData.get("deity") as string;
               const question = formData.get("question") as string;
 
+              revalidatePath("/chat");
               await api.ai.askGod({ deityId, question });
             }}
           >

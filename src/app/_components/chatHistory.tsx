@@ -5,16 +5,19 @@ import { useState } from "react";
 import { api } from "~/trpc/react";
 
 export interface Props {
-  lastMessageId?: string | null;
   className?: string;
 }
 
-export function ChatHistory({ lastMessageId, className }: Props) {
+export function ChatHistory({ className }: Props) {
+  const [lastMessageId] = api.chat.getLastMessageId.useSuspenseQuery();
   const [messages, setMessages] = useState<Map<string, Message>>(new Map());
 
   api.ai.onMessageAdded.useSubscription(
     { lastEventId: lastMessageId },
     {
+      onStarted: () => {
+        console.log("onStarted");
+      },
       onData: ({ data }) => {
         setMessages((prev) => {
           let newData = data;
