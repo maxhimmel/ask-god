@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { UserSplit } from "~/app/_components/userDisplays";
+import { SignInOutSplit } from "~/app/_components/userDisplays";
 import { HydrateClient } from "~/trpc/server";
 
 export default function Home() {
@@ -17,14 +17,14 @@ export default function Home() {
               Power.
             </p>
           </div>
-          <UserSplit>
+          <SignInOutSplit>
             <Link href="/chat" className="btn btn-primary mx-auto">
               Start Chatting
             </Link>
             <Link href="/api/auth/signin" className="btn btn-primary mx-auto">
               Get Started
             </Link>
-          </UserSplit>
+          </SignInOutSplit>
         </div>
       </main>
     </HydrateClient>

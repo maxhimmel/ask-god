@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { UserSplit } from "~/app/_components/userDisplays";
+import { SignInOutSplit } from "~/app/_components/userDisplays";
 
 export async function Navbar() {
   return (
@@ -11,14 +11,14 @@ export async function Navbar() {
           </Link>
         </div>
         <div className="flex">
-          <UserSplit>
+          <SignInOutSplit>
             <Link href="/api/auth/signout" className="btn btn-neutral">
               Sign Out
             </Link>
             <Link href="/api/auth/signin" className="btn btn-neutral">
               Sign In
             </Link>
-          </UserSplit>
+          </SignInOutSplit>
         </div>
       </div>
     </div>

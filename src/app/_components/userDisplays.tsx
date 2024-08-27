@@ -3,7 +3,11 @@ import { getServerAuthSession } from "~/server/auth";
 export type HasUser = React.ReactNode;
 export type NoUser = React.ReactNode;
 
-export async function UserSplit({ children }: { children: [HasUser, NoUser] }) {
+export async function SignInOutSplit({
+  children,
+}: {
+  children: [HasUser, NoUser];
+}) {
   const session = await getServerAuthSession();
 
   if (session?.user) {
@@ -17,7 +21,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export async function HasUser({ children }: Props) {
+export async function SignedIn({ children }: Props) {
   const session = await getServerAuthSession();
 
   if (session?.user) {
@@ -25,7 +29,7 @@ export async function HasUser({ children }: Props) {
   }
 }
 
-export async function NoUser({ children }: Props) {
+export async function SignedOut({ children }: Props) {
   const session = await getServerAuthSession();
 
   if (!session?.user) {
