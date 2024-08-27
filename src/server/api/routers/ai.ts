@@ -65,27 +65,99 @@ export const aiRouter = createTRPCRouter({
             lastEventId: z.string().nullish()
         }).optional())
         .subscription(async function* (opts) {
-            if (opts.input?.lastEventId) {
-                const lastMessage = await opts.ctx.db.message.findFirst({
-                    where: { id: opts.input.lastEventId }
-                });
+            let unsubscribe = () => {
+                // ...
+            };
 
-                if (!lastMessage) {
-                    return;
+            const stream = new ReadableStream<Message>({
+                async start(controller) {
+                    const onAdd = (message: Message) => {
+                        controller.enqueue(message);
+                    };
+                    eventEmitter.on("message", onAdd);
+
+                    unsubscribe = () => {
+                        eventEmitter.off("message", onAdd);
+                    };
+
+                    // Queue up messages that were sent before the lastEventId ...
+                    if (opts.input?.lastEventId) {
+                        const lastMessage = await opts.ctx.db.message.findFirst({
+                            where: { id: opts.input.lastEventId }
+                        });
+
+                        if (lastMessage) {
+                            const messages = await opts.ctx.db.message.findMany({
+                                where: { chatRoomId: lastMessage.chatRoomId, createdAt: { lte: lastMessage.createdAt } }
+                            });
+
+                            for (const message of messages) {
+                                controller.enqueue(message);
+                            }
+                        }
+                    }
+                },
+
+                cancel() {
+                    unsubscribe();
                 }
+            });
 
-                const messages = await opts.ctx.db.message.findMany({
-                    where: { chatRoomId: lastMessage.chatRoomId, createdAt: { lte: lastMessage.createdAt } }
-                });
-
-                for (const message of messages) {
-                    yield tracked(message.id, message);
-                }
-            }
-
-            for await (const [data] of on(eventEmitter, "message")) {
-                const message = data as Message;
+            for await (const message of streamToAsyncIterable(stream)) {
                 yield tracked(message.id, message);
             }
+            // console.log("subscribed to onMessageAdded");
+            // if (opts.input?.lastEventId) {
+            //     const lastMessage = await opts.ctx.db.message.findFirst({
+            //         where: { id: opts.input.lastEventId }
+            //     });
+
+            //     if (lastMessage) {
+            //         const messages = await opts.ctx.db.message.findMany({
+            //             where: { chatRoomId: lastMessage.chatRoomId, createdAt: { lte: lastMessage.createdAt } }
+            //         });
+
+            //         for (const message of messages) {
+            //             yield tracked(message.id, message);
+            //         }
+            //     }
+            // }
+
+            // for await (const [data] of on(eventEmitter, "message")) {
+            //     const message = data as Message;
+            //     yield tracked(message.id, message);
+            // }
         })
 });
+
+function streamToAsyncIterable<TValue>(
+    stream: ReadableStream<TValue>,
+): AsyncIterable<TValue> {
+    const reader = stream.getReader();
+    const iterator: AsyncIterator<TValue> = {
+        async next() {
+            const value = await reader.read();
+            if (value.done) {
+                return {
+                    value: undefined,
+                    done: true,
+                };
+            }
+            return {
+                value: value.value,
+                done: false,
+            };
+        },
+        async return() {
+            await reader.cancel();
+            return {
+                value: undefined,
+                done: true,
+            };
+        },
+    };
+
+    return {
+        [Symbol.asyncIterator]: () => iterator,
+    };
+}
