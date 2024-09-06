@@ -1,17 +1,19 @@
-import { revalidatePath } from "next/cache";
 import { ChatHistory } from "~/app/_components/chatHistory";
 import { DeityPicker } from "~/app/_components/deityPicker";
+import { askGod, clearChat, getMessages } from "~/server/api/actions";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Chat() {
   void api.ai.getDeities.prefetch();
-  void api.chat.getLastMessageId.prefetch();
+
+  const messages = await getMessages();
+  messages.reverse();
 
   return (
     <HydrateClient>
       <main className="hero">
         <div className="hero-content flex w-screen flex-col">
-          <ChatHistory className="mx-auto" />
+          <ChatHistory className="mx-auto" messages={messages} />
 
           <form
             className="join join-vertical flex w-full sm:join-horizontal"
@@ -21,8 +23,7 @@ export default async function Chat() {
               const deityId = formData.get("deity") as string;
               const question = formData.get("question") as string;
 
-              revalidatePath("/chat");
-              await api.ai.askGod({ deityId, question });
+              await askGod({ deityId, question });
             }}
           >
             <DeityPicker className="join-item" />
@@ -43,8 +44,7 @@ export default async function Chat() {
             action={async () => {
               "use server";
 
-              await api.chat.clearChat();
-              revalidatePath("/chat");
+              await clearChat();
             }}
           >
             <button type="submit" className="btn btn-error">
