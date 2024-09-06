@@ -1,7 +1,6 @@
 "use client";
 
 import type { Message } from "@prisma/client";
-import { useState } from "react";
 import { api } from "~/trpc/react";
 
 export interface Props {
@@ -10,30 +9,14 @@ export interface Props {
 
 export function ChatHistory({ className }: Props) {
   const [lastMessageId] = api.chat.getLastMessageId.useSuspenseQuery();
-  const [messages, setMessages] = useState<Map<string, Message>>(new Map());
-
-  api.ai.onMessageAdded.useSubscription(
-    { lastEventId: lastMessageId },
+  const [{ pages }] = api.chat.getMessages.useSuspenseInfiniteQuery(
+    {},
     {
-      onStarted: () => {
-        console.log("onStarted");
-      },
-      onData: ({ data }) => {
-        setMessages((prev) => {
-          let newData = data;
-          const updatedMessages = new Map(prev);
-
-          if (updatedMessages.has(newData.batchId)) {
-            const existing = updatedMessages.get(newData.batchId)!;
-            newData = { ...existing };
-            newData.content += data.content;
-            newData.createdAt = data.createdAt;
-          }
-
-          updatedMessages.set(newData.batchId, newData);
-          return updatedMessages;
-        });
-      },
+      refetchOnMount: "always",
+      refetchOnWindowFocus: "always",
+      refetchInterval: 500,
+      initialCursor: lastMessageId,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
 
@@ -41,11 +24,13 @@ export function ChatHistory({ className }: Props) {
     <div
       className={`input input-bordered flex h-[calc(100vh*0.75)] w-full flex-col-reverse overflow-y-auto rounded-md p-4 ${className}`}
     >
-      {Array.from(messages.values())
-        .reverse()
-        .map((message) => (
-          <MessageComponent key={message.batchId} message={message} />
-        ))}
+      {pages.map((page, i) => (
+        <div key={i}>
+          {page.messages.map((message) => (
+            <MessageComponent key={message.id} message={message} />
+          ))}
+        </div>
+      ))}
     </div>
   );
 }

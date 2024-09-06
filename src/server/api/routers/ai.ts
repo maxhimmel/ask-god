@@ -1,13 +1,8 @@
 import { google } from "@ai-sdk/google";
-import type { Message } from "@prisma/client";
-import { tracked } from "@trpc/server";
 import { streamText } from "ai";
 import { randomUUID } from "crypto";
-import EventEmitter, { on } from "events";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
-
-const eventEmitter = new EventEmitter();
 
 export const aiRouter = createTRPCRouter({
     getDeities: publicProcedure
@@ -24,7 +19,8 @@ export const aiRouter = createTRPCRouter({
                 where: { userId },
             });
 
-            const userMessage = await ctx.db.message.create({
+            // Send user message
+            await ctx.db.message.create({
                 data: {
                     batchId: randomUUID(),
                     content: input.question,
@@ -34,7 +30,6 @@ export const aiRouter = createTRPCRouter({
                     chatRoomId: chatRoom.id,
                 },
             });
-            eventEmitter.emit<Message>("message", userMessage);
 
             const deity = await ctx.db.deity.findUniqueOrThrow({ where: { id: input.deityId } });
 
@@ -45,119 +40,27 @@ export const aiRouter = createTRPCRouter({
             });
 
             const batchId = randomUUID();
+            const deityMessage = await ctx.db.message.create({
+                data: {
+                    batchId,
+                    content: '',
+                    senderName: deity.name,
+                    senderId: deity.id,
+                    isDeity: true,
+                    chatRoomId: chatRoom.id,
+                },
+            });
+            let content = ''
             for await (const delta of textStream) {
-                const deityMessage = await ctx.db.message.create({
-                    data: {
-                        batchId,
-                        content: delta,
-                        senderName: deity.name,
-                        senderId: deity.id,
-                        isDeity: true,
-                        chatRoomId: chatRoom.id,
+                content += delta;
+                await ctx.db.message.update({
+                    where: {
+                        id: deityMessage.id
                     },
-                });
-                eventEmitter.emit<Message>("message", deityMessage);
+                    data: {
+                        content
+                    }
+                })
             }
         }),
-
-    onMessageAdded: protectedProcedure
-        .input(z.object({
-            lastEventId: z.string().nullish()
-        }).optional())
-        .subscription(async function* (opts) {
-            let unsubscribe = () => {
-                // ...
-            };
-
-            const stream = new ReadableStream<Message>({
-                async start(controller) {
-                    const onAdd = (message: Message) => {
-                        controller.enqueue(message);
-                    };
-                    eventEmitter.on("message", onAdd);
-
-                    unsubscribe = () => {
-                        eventEmitter.off("message", onAdd);
-                    };
-
-                    // Queue up messages that were sent before the lastEventId ...
-                    if (opts.input?.lastEventId) {
-                        const lastMessage = await opts.ctx.db.message.findFirst({
-                            where: { id: opts.input.lastEventId }
-                        });
-
-                        if (lastMessage) {
-                            const messages = await opts.ctx.db.message.findMany({
-                                where: { chatRoomId: lastMessage.chatRoomId, createdAt: { lte: lastMessage.createdAt } }
-                            });
-
-                            for (const message of messages) {
-                                controller.enqueue(message);
-                            }
-                        }
-                    }
-                },
-
-                cancel() {
-                    unsubscribe();
-                }
-            });
-
-            for await (const message of streamToAsyncIterable(stream)) {
-                yield tracked(message.id, message);
-            }
-            // console.log("subscribed to onMessageAdded");
-            // if (opts.input?.lastEventId) {
-            //     const lastMessage = await opts.ctx.db.message.findFirst({
-            //         where: { id: opts.input.lastEventId }
-            //     });
-
-            //     if (lastMessage) {
-            //         const messages = await opts.ctx.db.message.findMany({
-            //             where: { chatRoomId: lastMessage.chatRoomId, createdAt: { lte: lastMessage.createdAt } }
-            //         });
-
-            //         for (const message of messages) {
-            //             yield tracked(message.id, message);
-            //         }
-            //     }
-            // }
-
-            // for await (const [data] of on(eventEmitter, "message")) {
-            //     const message = data as Message;
-            //     yield tracked(message.id, message);
-            // }
-        })
 });
-
-function streamToAsyncIterable<TValue>(
-    stream: ReadableStream<TValue>,
-): AsyncIterable<TValue> {
-    const reader = stream.getReader();
-    const iterator: AsyncIterator<TValue> = {
-        async next() {
-            const value = await reader.read();
-            if (value.done) {
-                return {
-                    value: undefined,
-                    done: true,
-                };
-            }
-            return {
-                value: value.value,
-                done: false,
-            };
-        },
-        async return() {
-            await reader.cancel();
-            return {
-                value: undefined,
-                done: true,
-            };
-        },
-    };
-
-    return {
-        [Symbol.asyncIterator]: () => iterator,
-    };
-}
