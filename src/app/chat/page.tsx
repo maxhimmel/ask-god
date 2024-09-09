@@ -1,56 +1,15 @@
-import { revalidatePath } from "next/cache";
-import { ChatHistory } from "~/app/_components/chatHistory";
-import { DeityPicker } from "~/app/_components/deityPicker";
+import { ChatComponent } from "~/app/chat/chatComponent";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Chat() {
   void api.ai.getDeities.prefetch();
-  void api.chat.getLastMessageId.prefetch();
+  void api.chat.getChatRoom.prefetch();
 
   return (
     <HydrateClient>
       <main className="hero">
         <div className="hero-content flex w-screen flex-col">
-          <ChatHistory className="mx-auto" />
-
-          <form
-            className="join join-vertical flex w-full sm:join-horizontal"
-            action={async (formData) => {
-              "use server";
-
-              const deityId = formData.get("deity") as string;
-              const question = formData.get("question") as string;
-
-              revalidatePath("/chat");
-              await api.ai.askGod({ deityId, question });
-            }}
-          >
-            <DeityPicker className="join-item" />
-            <input
-              name="question"
-              type="text"
-              className="input join-item input-bordered flex w-full"
-              placeholder="Ask a question..."
-            />
-            <button type="submit" className="btn btn-primary join-item">
-              Send
-            </button>
-          </form>
-
-          {/*---*/}
-
-          <form
-            action={async () => {
-              "use server";
-
-              await api.chat.clearChat();
-              revalidatePath("/chat");
-            }}
-          >
-            <button type="submit" className="btn btn-error">
-              Clear Chat
-            </button>
-          </form>
+          <ChatComponent />
         </div>
       </main>
     </HydrateClient>

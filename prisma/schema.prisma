@@ -25,7 +25,6 @@ model Message {
     id         String   @id @default(cuid())
     content    String //@db.Text
     createdAt  DateTime @default(now())
-    batchId    String
     senderName String
     senderId   String
     isDeity    Boolean
