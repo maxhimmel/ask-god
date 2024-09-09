@@ -14,7 +14,7 @@ export function ChatComponent() {
 
   return (
     <ChatContextProvider
-      messageHistory={new Map(chatRoom.messages.map((msg) => [msg.id, msg]))}
+      messageHistory={new Map(chatRoom.messages?.map((msg) => [msg.id, msg]))}
     >
       <ChatHistory className="mx-auto" />
       <ChatForm />

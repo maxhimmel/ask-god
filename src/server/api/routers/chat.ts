@@ -5,32 +5,16 @@ export const chatRouter = createTRPCRouter({
         .query(async ({ ctx }) => {
             const userId = ctx.session.user.id;
 
-            let chatRoom = await ctx.db.chatRoom.findFirst({
-                where: { userId },
-                include: { messages: true }
+            return await ctx.db.getChatRoom({
+                userId,
+                includeMessages: true
             });
-
-            if (!chatRoom) {
-                chatRoom = await ctx.db.chatRoom.create({
-                    data: { userId },
-                    include: { messages: true }
-                });
-            }
-
-            return chatRoom;
         }),
 
     clearChat: protectedProcedure
         .mutation(async ({ ctx }) => {
             const userId = ctx.session.user.id;
 
-            const chatRoom = await ctx.db.chatRoom.findFirstOrThrow({
-                where: { userId },
-                include: { messages: true }
-            });
-
-            await ctx.db.message.deleteMany({
-                where: { chatRoomId: chatRoom.id }
-            });
+            await ctx.db.clearChat({ userId });
         }),
 });
