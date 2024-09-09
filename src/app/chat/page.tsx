@@ -1,9 +1,9 @@
 import { ChatComponent } from "~/app/_components/chatComponent";
-import { api, HydrateClient } from "~/trpc/server";
+import { prefetchChat } from "~/app/chat/chatController";
+import { HydrateClient } from "~/trpc/server";
 
 export default async function Chat() {
-  void api.ai.getDeities.prefetch();
-  void api.chat.getChatRoom.prefetch();
+  prefetchChat();
 
   return (
     <HydrateClient>

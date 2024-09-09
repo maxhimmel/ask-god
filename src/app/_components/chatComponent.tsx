@@ -1,16 +1,12 @@
 "use client";
 
-import { useRef, useTransition } from "react";
 import { ChatHistory } from "~/app/_components/chatHistory";
 import { DeityPicker } from "~/app/_components/deityPicker";
-import {
-  ChatContextProvider,
-  useChatContext,
-} from "~/app/contexts/chatContext";
-import { api } from "~/trpc/react";
+import { ChatContextProvider } from "~/app/contexts/chatContext";
+import { useChatForm, useChatRoom, useClearChat } from "~/app/hooks/chatHooks";
 
 export function ChatComponent() {
-  const [chatRoom] = api.chat.getChatRoom.useSuspenseQuery();
+  const chatRoom = useChatRoom();
 
   return (
     <ChatContextProvider
@@ -24,9 +20,7 @@ export function ChatComponent() {
 }
 
 function ChatForm() {
-  const questionRef = useRef<HTMLInputElement>(null);
-  const askGod = api.ai.askGod.useMutation();
-  const { setMessages } = useChatContext();
+  const { questionRef, askGod, setMessages } = useChatForm();
 
   return (
     <form
@@ -70,19 +64,14 @@ function ChatForm() {
 }
 
 function ClearChatButton() {
-  const clearChat = api.chat.clearChat.useMutation();
-  const [isPending, startClearing] = useTransition();
-  const { setMessages } = useChatContext();
+  const { clearChat, isPending } = useClearChat();
 
   return (
     <form
       onSubmit={async (formEvent) => {
         formEvent.preventDefault();
 
-        startClearing(async () => {
-          await clearChat.mutateAsync();
-          setMessages(new Map());
-        });
+        await clearChat();
       }}
     >
       <button type="submit" className="btn btn-error" disabled={isPending}>

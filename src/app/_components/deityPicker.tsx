@@ -1,6 +1,6 @@
 "use client";
 
-import { api } from "~/trpc/react";
+import { useDeities } from "~/app/hooks/chatHooks";
 
 export interface Props {
   className?: string;
@@ -13,7 +13,7 @@ export function DeityPicker({
   inputName = "deity",
   onChange,
 }: Props) {
-  const [deities] = api.ai.getDeities.useSuspenseQuery();
+  const deities = useDeities();
 
   if (deities) {
     deities.sort((a, b) => sortAlphabetically(a.name, b.name));
