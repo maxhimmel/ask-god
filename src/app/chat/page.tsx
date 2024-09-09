@@ -1,4 +1,4 @@
-import { ChatComponent } from "~/app/chat/chatComponent";
+import { ChatComponent } from "~/app/_components/chatComponent";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Chat() {
