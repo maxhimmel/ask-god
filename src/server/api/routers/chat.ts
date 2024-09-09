@@ -2,7 +2,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const chatRouter = createTRPCRouter({
     getChatRoom: protectedProcedure
-        .mutation(async ({ ctx }) => {
+        .query(async ({ ctx }) => {
             const userId = ctx.session.user.id;
 
             let chatRoom = await ctx.db.chatRoom.findFirst({
@@ -33,23 +33,4 @@ export const chatRouter = createTRPCRouter({
                 where: { chatRoomId: chatRoom.id }
             });
         }),
-
-    getLastMessageId: protectedProcedure
-        .query(async ({ ctx }) => {
-            const userId = ctx.session.user.id;
-
-            let chatRoom = await ctx.db.chatRoom.findFirst({
-                where: { userId },
-                include: { messages: { orderBy: { createdAt: "desc" }, take: 1 } }
-            });
-
-            if (!chatRoom) {
-                chatRoom = await ctx.db.chatRoom.create({
-                    data: { userId },
-                    include: { messages: true }
-                });
-            }
-
-            return chatRoom.messages[0]?.id ?? null;
-        })
 });
