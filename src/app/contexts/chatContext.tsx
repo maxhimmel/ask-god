@@ -9,14 +9,14 @@ import {
   useState,
 } from "react";
 
-export interface IChatContext {
+interface IChatContext {
   messages: Map<string, Message>;
   setMessages: Dispatch<SetStateAction<Map<string, Message>>>;
 }
 
-export const ChatContext = createContext<IChatContext | null>(null);
+const chatContext = createContext<IChatContext | null>(null);
 
-export function ChatContextProvider({
+function ChatContextProvider({
   children,
   messageHistory,
 }: {
@@ -26,21 +26,24 @@ export function ChatContextProvider({
   const [messages, setMessages] = useState(messageHistory);
 
   return (
-    <ChatContext.Provider
+    <chatContext.Provider
       value={{
         messages,
         setMessages,
       }}
     >
       {children}
-    </ChatContext.Provider>
+    </chatContext.Provider>
   );
 }
 
-export const useChatContext = () => {
-  const context = useContext(ChatContext);
+const useChatContext = () => {
+  const context = useContext(chatContext);
   if (!context) {
     throw new Error("useChatContext must be used within a ChatContextProvider");
   }
   return context;
 };
+
+export type { IChatContext };
+export { ChatContextProvider, useChatContext };
