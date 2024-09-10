@@ -8,23 +8,24 @@ export interface Props {
 }
 
 export function ChatHistory({ className }: Props) {
+  // TODO: add a messages array to the context
   const { messages, isCommunicating } = useChatContext();
-
-  const reversedMessages = [...messages].reverse();
 
   return (
     <div
-      className={`input input-bordered flex h-[calc(100vh*0.75)] w-full flex-col-reverse overflow-y-auto rounded-md p-4 ${className}`}
+      className={`input input-bordered flex h-[calc(100vh*0.75)] w-full flex-col overflow-y-auto rounded-md p-4 ${className}`}
     >
+      <div className="my-auto"></div>
+
+      {Array.from(messages).map((messageKvp) => (
+        <MessageComponent key={messageKvp[0]} message={messageKvp[1]} />
+      ))}
+
       {isCommunicating && (
         <div>
           <span className="loading loading-dots" />
         </div>
       )}
-
-      {reversedMessages.map((messageKvp) => (
-        <MessageComponent key={messageKvp[0]} message={messageKvp[1]} />
-      ))}
     </div>
   );
 }
