@@ -15,12 +15,13 @@ export function useChatRoom() {
 export function useChatForm() {
     const questionRef = useRef<HTMLInputElement>(null);
     const askGod = api.ai.askGod.useMutation();
-    const { setMessages } = useChatContext();
+    const { setMessages, setIsCommunicating } = useChatContext();
 
     return {
         questionRef,
         askGod,
         setMessages,
+        setIsCommunicating,
     };
 }
 

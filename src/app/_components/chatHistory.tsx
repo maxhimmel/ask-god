@@ -8,7 +8,7 @@ export interface Props {
 }
 
 export function ChatHistory({ className }: Props) {
-  const { messages } = useChatContext();
+  const { messages, isCommunicating } = useChatContext();
 
   const reversedMessages = [...messages].reverse();
 
@@ -16,6 +16,12 @@ export function ChatHistory({ className }: Props) {
     <div
       className={`input input-bordered flex h-[calc(100vh*0.75)] w-full flex-col-reverse overflow-y-auto rounded-md p-4 ${className}`}
     >
+      {isCommunicating && (
+        <div>
+          <span className="loading loading-dots" />
+        </div>
+      )}
+
       {reversedMessages.map((messageKvp) => (
         <MessageComponent key={messageKvp[0]} message={messageKvp[1]} />
       ))}

@@ -12,6 +12,9 @@ import {
 interface IChatContext {
   messages: Map<string, Message>;
   setMessages: Dispatch<SetStateAction<Map<string, Message>>>;
+
+  isCommunicating: boolean;
+  setIsCommunicating: Dispatch<SetStateAction<boolean>>;
 }
 
 const chatContext = createContext<IChatContext | null>(null);
@@ -24,12 +27,15 @@ function ChatContextProvider({
   messageHistory: Map<string, Message>;
 }) {
   const [messages, setMessages] = useState(messageHistory);
+  const [isCommunicating, setIsCommunicating] = useState(false);
 
   return (
     <chatContext.Provider
       value={{
         messages,
         setMessages,
+        isCommunicating,
+        setIsCommunicating,
       }}
     >
       {children}

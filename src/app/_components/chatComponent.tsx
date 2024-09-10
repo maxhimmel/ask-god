@@ -20,7 +20,8 @@ export function ChatComponent() {
 }
 
 function ChatForm() {
-  const { questionRef, askGod, setMessages } = useChatForm();
+  const { questionRef, askGod, setMessages, setIsCommunicating } =
+    useChatForm();
 
   return (
     <form
@@ -36,6 +37,8 @@ function ChatForm() {
           questionRef.current.value = "";
         }
 
+        setIsCommunicating(true);
+
         for await (const message of await askGod.mutateAsync({
           deityId,
           question,
@@ -46,6 +49,8 @@ function ChatForm() {
             return newMessages;
           });
         }
+
+        setIsCommunicating(false);
       }}
     >
       <DeityPicker className="join-item" />
